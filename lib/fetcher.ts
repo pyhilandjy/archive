@@ -12,6 +12,8 @@ export async function fetcher<T>(
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const url = `${baseUrl}${path}`;
 
+  console.log(`Fetching ${url} with options:`, options);
+
   const res = await fetch(url, {
     method: options.method ?? "GET",
     headers: {
