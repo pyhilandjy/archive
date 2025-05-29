@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +15,28 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import {
+  useRequestVerificationMutation,
+  useVerficationEmailMutation,
+} from "@/hooks/use-signup-mutation";
 
 export function EmailVerificationForm({
+  email,
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & { email: string }) {
+  const [otp, setOtp] = useState("");
+  const checkMutation = useRequestVerificationMutation();
+  const verificationMutation = useVerficationEmailMutation();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    checkMutation.mutate({ email, otp });
+  };
+
+  const handleResend = () => {
+    verificationMutation.mutate({ email });
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -28,12 +47,12 @@ export function EmailVerificationForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="verificationCode">인증번호</Label>
                 <div className="flex justify-center">
-                  <InputOTP maxLength={6}>
+                  <InputOTP maxLength={6} onChange={(value) => setOtp(value)}>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
@@ -45,14 +64,25 @@ export function EmailVerificationForm({
                   </InputOTP>
                 </div>
                 <p className="text-sm text-muted-foreground text-center">
-                  example@email.com으로 인증번호를 발송했습니다
+                  {email}으로 인증번호를 발송했습니다
                 </p>
               </div>
-              <Button type="submit" className="w-full">
-                인증 확인
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={checkMutation.isPending}
+              >
+                {checkMutation.isPending ? "확인 중..." : "인증 확인"}
               </Button>
-              <Button variant="outline" className="w-full">
-                인증번호 재발송
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleResend}
+                disabled={verificationMutation.isPending}
+              >
+                {verificationMutation.isPending
+                  ? "재발송 중..."
+                  : "인증번호 재발송"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
