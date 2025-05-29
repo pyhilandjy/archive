@@ -17,17 +17,22 @@ import { useVerficationEmailMutation } from "@/hooks/use-signup-mutation";
 
 export function SignUpForm({
   setEmail,
+  onSuccess,
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & {
   setEmail: (email: string) => void;
+  onSuccess: () => void;
 }) {
   const [localEmail, setLocalEmail] = useState("");
   const mutation = useVerficationEmailMutation();
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmail(localEmail); // 상위 컴포넌트에 이메일 전달
-    mutation.mutate({ email: localEmail });
+    const response = await mutation.mutateAsync({ email: localEmail });
+    if (response.success) {
+      setEmail(localEmail); // 부모 컴포넌트로 이메일 전달
+      onSuccess(); // 성공 시 단계 전환
+    }
   };
 
   return (
