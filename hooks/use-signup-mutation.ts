@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { verifyEmail } from "@/lib/auth-api";
+import { verifyEmail, requestVerification } from "@/lib/auth-api";
 
 export interface EmailInput {
   email: string;
@@ -8,5 +8,12 @@ export interface EmailInput {
 export function useVerficationEmailMutation() {
   return useMutation({
     mutationFn: ({ email }: EmailInput) => verifyEmail(email),
+  });
+}
+
+export function useRequestVerificationMutation() {
+  return useMutation({
+    mutationFn: ({ email, otp }: { email: string; otp?: string }) =>
+      requestVerification(email, otp ?? ""),
   });
 }
