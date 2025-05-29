@@ -22,15 +22,23 @@ import {
 
 export function EmailVerificationForm({
   email,
+  onSuccess,
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div"> & { email: string }) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  email: string;
+  onSuccess: () => void;
+}) {
   const [otp, setOtp] = useState("");
   const checkMutation = useRequestVerificationMutation();
   const verificationMutation = useVerficationEmailMutation();
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    checkMutation.mutate({ email, otp });
+    const response = await checkMutation.mutateAsync({ email, otp });
+    if (response.success) {
+      // success 속성을 기반으로 조건 확인
+      onSuccess(); // 성공 시 단계 전환
+    }
   };
 
   const handleResend = () => {
