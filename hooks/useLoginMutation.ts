@@ -1,6 +1,6 @@
 // lib/useLoginMutation.ts
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/lib/api";
+import { login } from "@/lib/auth-api";
 
 type LoginInput = {
   email: string;
