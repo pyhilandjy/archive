@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLoginMutation } from "@/hooks/useLoginMutation";
+import { useLoginMutation } from "@/hooks/use-login-mutation";
 
 export function LoginForm({
   className,
