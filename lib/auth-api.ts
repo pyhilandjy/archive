@@ -27,3 +27,9 @@ export const requestVerification = async (email: string, otp: string) => {
     body: { email, otp },
   });
 };
+
+export const me = async () => {
+  return fetcher<{ user_id: string; email: string }>("/me", {
+    method: "GET",
+  });
+};
