@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLoginMutation } from "@/hooks/use-login-mutation";
+import { useLoginMutation, useTestMe } from "@/hooks/use-login-mutation";
 
 export function LoginForm({
   className,
@@ -22,10 +22,11 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const mutation = useLoginMutation();
-
+  const testMeMutation = useTestMe();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate({ email, password });
+    testMeMutation.mutate(); // 로그인 후 사용자 정보 테스트
   };
 
   return (
