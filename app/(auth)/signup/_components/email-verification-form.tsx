@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { extractErrorMessage } from "@/lib/extract-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,19 +31,38 @@ export function EmailVerificationForm({
   onSuccess: () => void;
 }) {
   const [otp, setOtp] = useState("");
+  const [timeLeft, setTimeLeft] = useState(300); // 5분(300초)
+  const [errorMessage, setErrorMessage] = useState("");
   const checkMutation = useRequestVerificationMutation();
   const verificationMutation = useVerficationEmailMutation();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const response = await checkMutation.mutateAsync({ email, otp });
     if (response.success) {
-      // success 속성을 기반으로 조건 확인
-      onSuccess(); // 성공 시 단계 전환
+      onSuccess();
     }
   };
 
-  const handleResend = () => {
-    verificationMutation.mutate({ email });
+  const handleResend = async () => {
+    setErrorMessage("");
+
+    try {
+      const response = await verificationMutation.mutateAsync({ email });
+      if (response.success) {
+        setTimeLeft(300);
+      }
+    } catch (error: unknown) {
+      const message = extractErrorMessage(error);
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -74,6 +94,10 @@ export function EmailVerificationForm({
                 <p className="text-sm text-muted-foreground text-center">
                   {email}으로 인증번호를 발송했습니다
                 </p>
+                <p className="text-sm text-muted-foreground text-center">
+                  인증번호 유효시간: {Math.floor(timeLeft / 60)}분{" "}
+                  {timeLeft % 60}초
+                </p>
               </div>
               <Button
                 type="submit"
@@ -83,7 +107,7 @@ export function EmailVerificationForm({
                 {checkMutation.isPending ? "확인 중..." : "인증 확인"}
               </Button>
               <Button
-                variant="outline"
+                type="button"
                 className="w-full"
                 onClick={handleResend}
                 disabled={verificationMutation.isPending}
@@ -92,6 +116,11 @@ export function EmailVerificationForm({
                   ? "재발송 중..."
                   : "인증번호 재발송"}
               </Button>
+              {errorMessage && (
+                <p className="text-sm text-red-500 text-center">
+                  {errorMessage}
+                </p>
+              )}
             </div>
             <div className="mt-4 text-center text-sm">
               다른 이메일을 사용하시겠습니까?{" "}
