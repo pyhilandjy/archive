@@ -28,6 +28,7 @@ export async function fetcher<T>(
 
   const res = await fetch(url, {
     method: options.method ?? "GET",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
