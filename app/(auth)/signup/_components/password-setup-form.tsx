@@ -21,16 +21,19 @@ export function PasswordSetupForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [validationError, setValidationError] = useState(""); // 추가된 상태
   const signupMutation = useSignupMutation();
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
-    setError(""); // 상태 초기화
+    setError("");
+    setValidationError(""); // 상태 초기화
   };
 
   const handleConfirmPasswordChange = (value: string) => {
     setConfirmPassword(value);
-    setError(""); // 상태 초기화
+    setError("");
+    setValidationError(""); // 상태 초기화
   };
 
   const validatePasswords = (): string => {
@@ -51,7 +54,24 @@ export function PasswordSetupForm({
     const validationError = validatePasswords(); // 즉시 검증 결과 확인
     setError(validationError); // 상태 업데이트
     if (!validationError) {
-      signupMutation.mutate({ email, password });
+      signupMutation.mutate(
+        { email, password },
+        {
+          onError: (error) => {
+            if (error instanceof Error && error.message.includes("422")) {
+              try {
+                const errorText = JSON.parse(error.message.split(": ")[1]);
+                const errorDetail =
+                  errorText.detail?.[0]?.msg ||
+                  "비밀번호 조건에 충족하지 못합니다.";
+                setValidationError(errorDetail); // 상태 업데이트
+              } catch {
+                setValidationError("비밀번호 조건에 충족하지 못합니다."); // 상태 업데이트
+              }
+            }
+          },
+        }
+      );
     }
   };
 
@@ -132,6 +152,9 @@ export function PasswordSetupForm({
                     숫자 1개 이상
                   </li>
                 </ul>
+                {validationError && (
+                  <p className="text-sm text-red-500 mt-2">{validationError}</p>
+                )}
               </div>
               <Button
                 type="submit"
