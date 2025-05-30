@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,10 +24,19 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const mutation = useLoginMutation();
   const testMeMutation = useTestMe();
+  const router = useRouter();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ email, password });
-    testMeMutation.mutate(); // 로그인 후 사용자 정보 테스트
+    mutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          testMeMutation.mutate();
+          router.push("/main");
+        },
+      }
+    );
   };
 
   return (
