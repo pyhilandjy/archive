@@ -29,7 +29,7 @@ export const requestVerification = async (email: string, otp: string) => {
 };
 
 export const me = async () => {
-  return fetcher<{ user_id: string; email: string }>("/me", {
+  return fetcher("/me", {
     method: "GET",
   });
 };
