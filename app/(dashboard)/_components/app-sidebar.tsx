@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   AudioWaveform,
   BookOpen,
@@ -25,32 +24,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-import { useEffect, useRef, useState } from "react";
-import { useTestMe } from "@/hooks/use-login-mutation";
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const testMe = useTestMe();
-  const [userEmail, setUserEmail] = useState("jy@example.com");
-  const hasFetchedRef = useRef(false);
-
-  useEffect(() => {
-    if (!hasFetchedRef.current) {
-      hasFetchedRef.current = true;
-      testMe.mutateAsync().then((result) => {
-        const typedResult = result as Array<{ email: string }>;
-        if (Array.isArray(typedResult) && typedResult.length > 0) {
-          setUserEmail(typedResult[0].email);
-        }
-      });
-    }
-  }, [testMe]);
-
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const data = {
-    user: {
-      name: "jy",
-      email: userEmail,
-      avatar: "/avatars/jy.jpg",
-    },
     teams: [
       {
         name: "Acme Inc",
@@ -75,18 +50,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: SquareTerminal,
         isActive: true,
         items: [
-          {
-            title: "History",
-            url: "#",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
+          { title: "History", url: "#" },
+          { title: "Starred", url: "#" },
+          { title: "Settings", url: "#" },
         ],
       },
       {
@@ -94,18 +60,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "#",
         icon: Bot,
         items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
+          { title: "Genesis", url: "#" },
+          { title: "Explorer", url: "#" },
+          { title: "Quantum", url: "#" },
         ],
       },
       {
@@ -113,22 +70,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "#",
         icon: BookOpen,
         items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
+          { title: "Introduction", url: "#" },
+          { title: "Get Started", url: "#" },
+          { title: "Tutorials", url: "#" },
+          { title: "Changelog", url: "#" },
         ],
       },
       {
@@ -136,22 +81,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "#",
         icon: Settings2,
         items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
+          { title: "General", url: "#" },
+          { title: "Team", url: "#" },
+          { title: "Billing", url: "#" },
+          { title: "Limits", url: "#" },
         ],
       },
     ],
@@ -184,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

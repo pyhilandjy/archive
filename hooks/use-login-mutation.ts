@@ -1,5 +1,5 @@
 // lib/useLoginMutation.ts
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { login, me } from "@/lib/auth-api";
 
 type LoginInput = {
@@ -25,19 +25,9 @@ export function useLoginMutation() {
   });
 }
 
-export function useTestMe() {
-  return useMutation({
-    mutationFn: () => me(),
-
-    // 선택: 성공 시 작업 (예: 사용자 정보 저장)
-    onSuccess: (data) => {
-      console.log("User data fetched:", data);
-      // localStorage.setItem('user', JSON.stringify(data));
-    },
-
-    // 선택: 에러 핸들링
-    onError: (error) => {
-      console.error("Failed to fetch user data:", error);
-    },
+export function useUser() {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: me,
   });
 }
