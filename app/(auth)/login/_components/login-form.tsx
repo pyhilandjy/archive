@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLoginMutation, useTestMe } from "@/hooks/use-login-mutation";
+import { useLoginMutation } from "@/hooks/use-login-mutation";
+import { extractErrorMessage } from "@/lib/extract-error-message";
 
 export function LoginForm({
   className,
@@ -23,7 +24,6 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const mutation = useLoginMutation();
-  const testMeMutation = useTestMe();
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -31,8 +31,7 @@ export function LoginForm({
     mutation.mutate(
       { email, password },
       {
-        onSuccess: () => {
-          testMeMutation.mutate();
+        onSuccess: async () => {
           router.push("/main");
         },
       }
@@ -83,11 +82,8 @@ export function LoginForm({
 
               {mutation.isError && (
                 <p className="text-sm text-red-500">
-                  {(mutation.error as Error).message}
+                  {extractErrorMessage(mutation.error)}
                 </p>
-              )}
-              {mutation.isSuccess && (
-                <p className="text-sm text-green-600">로그인 성공!</p>
               )}
 
               <Button
