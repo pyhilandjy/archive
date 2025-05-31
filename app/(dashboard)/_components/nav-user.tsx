@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
 import {
   useSidebar,
@@ -21,15 +23,15 @@ import { useUser } from "@/hooks/use-login-mutation";
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data, isLoading, isError } = useUser();
+  const router = useRouter();
 
-  // 로딩 중 혹은 에러일 경우 아무것도 렌더링하지 않음
-  if (
-    isLoading ||
-    isError ||
-    !data ||
-    !Array.isArray(data) ||
-    data.length === 0
-  )
+  useEffect(() => {
+    if (isError) {
+      router.push("/login");
+    }
+  }, [isError, router]);
+
+  if (isLoading || !data || !Array.isArray(data) || data.length === 0)
     return null;
 
   const email = data[0].email;
