@@ -103,13 +103,18 @@ export function NavMain() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="flex items-center justify-between pr-2">
+      <SidebarGroupLabel className="flex h-8 items-center justify-between px-2">
         <span className="text-sm font-semibold text-muted-foreground">
           카테고리
         </span>
-        <SidebarMenuAction onClick={handleAddCategory}>
-          <Plus className="h-4 w-4" />
-        </SidebarMenuAction>
+        <div className="flex items-center">
+          <SidebarMenuAction
+            onClick={handleAddCategory}
+            className="relative top-0"
+          >
+            <Plus className="h-4 w-4" />
+          </SidebarMenuAction>
+        </div>
       </SidebarGroupLabel>
 
       <SidebarMenu>
@@ -124,13 +129,14 @@ export function NavMain() {
                   <div className="flex items-center gap-2">
                     <SidebarMenuAction
                       onClick={() => handleAddSubCategory(cat.id)}
-                      className="mr-6"
+                      showOnHover
+                      className=""
                     >
                       <Plus className="h-4 w-4" />
                     </SidebarMenuAction>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction showOnHover>
+                        <SidebarMenuAction showOnHover className="mr-6">
                           <MoreHorizontal className="h-4 w-4" />
                         </SidebarMenuAction>
                       </DropdownMenuTrigger>
