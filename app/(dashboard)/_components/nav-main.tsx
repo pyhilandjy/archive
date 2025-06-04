@@ -28,8 +28,8 @@ import {
   MainCategory,
   getCategories,
   postMainCategory,
-  updateMainCategory,
-  deleteMainCategory,
+  updateCategory,
+  deleteCategory,
   postSubCategory,
 } from "@/lib/category-api";
 import { Input } from "@/components/ui/input";
@@ -59,34 +59,38 @@ export function NavMain() {
 
   const handleAddCategory = async () => {
     const fallbackTitle = "새 카테고리";
-    const raw = await postMainCategory(fallbackTitle);
-    const newCat = Array.isArray(raw) ? raw[0] : raw;
-
-    const completeCat: MainCategory = {
-      ...newCat,
-      title: newCat.title ?? fallbackTitle,
-      sub_categories: newCat.sub_categories ?? [],
-    };
-
-    setCategories((prev) => [...prev, completeCat]);
-    setEditingId(completeCat.id);
-    setEditValue(completeCat.title);
+    await postMainCategory(fallbackTitle);
+    const updatedCategories = await getCategories();
+    setCategories(updatedCategories);
+    const newCategory = updatedCategories.find(
+      (cat) => cat.title === fallbackTitle
+    );
+    if (newCategory) {
+      setEditingId(newCategory.id);
+      setEditValue(newCategory.title);
+    }
   };
 
   const handleAddSubCategory = async (mainCategoryId: string) => {
     const fallbackTitle = "새 서브카테고리";
-    const response = await postSubCategory(mainCategoryId, fallbackTitle);
-    if (response.success) {
-      const updatedCategories = await getCategories();
-      setCategories(updatedCategories);
-    } else {
-      alert("Failed to create sub-category.");
+    await postSubCategory(mainCategoryId, fallbackTitle);
+    const updatedCategories = await getCategories();
+    setCategories(updatedCategories);
+    const parentCategory = updatedCategories.find(
+      (cat) => cat.id === mainCategoryId
+    );
+    const newSubCategory = parentCategory?.sub_categories?.find(
+      (sub) => sub.title === fallbackTitle
+    );
+    if (newSubCategory) {
+      setEditingId(newSubCategory.id);
+      setEditValue(newSubCategory.title);
     }
   };
 
   const handleRename = async (id: string) => {
     if (editValue.trim()) {
-      await updateMainCategory(id, editValue.trim());
+      await updateCategory(id, editValue.trim());
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === id ? { ...cat, title: editValue.trim() } : cat
@@ -97,7 +101,7 @@ export function NavMain() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    await deleteMainCategory(id);
+    await deleteCategory(id);
     setCategories((prev) => prev.filter((cat) => cat.id !== id));
   };
 
@@ -192,11 +196,64 @@ export function NavMain() {
                 <SidebarMenuSub>
                   {(cat.sub_categories ?? []).map((sub) => (
                     <SidebarMenuSubItem key={sub.id}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={`/categories/${sub.id}`}>
+                      <div className="flex items-center justify-between">
+                        <SidebarMenuSubButton>
                           <span>{sub.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
+                        </SidebarMenuSubButton>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <SidebarMenuAction showOnHover>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </SidebarMenuAction>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            className="w-48 rounded-lg"
+                            side={isMobile ? "bottom" : "right"}
+                            align={isMobile ? "end" : "start"}
+                          >
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingId(sub.id);
+                                setEditValue(sub.title);
+                              }}
+                            >
+                              <Pencil className="text-muted-foreground mr-2 h-4 w-4" />
+                              이름 바꾸기
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={async () => {
+                                await deleteCategory(sub.id);
+                                const updatedCategories = await getCategories();
+                                setCategories(updatedCategories);
+                              }}
+                            >
+                              <Trash2 className="text-muted-foreground mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      {editingId === sub.id && (
+                        <div className="mt-1 ml-2 flex items-center gap-2">
+                          <Input
+                            ref={inputRef}
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleRename(sub.id);
+                            }}
+                            onBlur={() => handleRename(sub.id)}
+                            className="h-7 text-sm"
+                          />
+                          <button
+                            onClick={() => handleRename(sub.id)}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>
