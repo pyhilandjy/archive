@@ -39,25 +39,14 @@ export const postSubCategory = async (parents_id: string, title: string) => {
   });
 };
 
-export const deleteMainCategory = async (id: string) => {
-  return fetcher<{ success: boolean }>(`/main-category/${id}`, {
+export const deleteCategory = async (id: string) => {
+  return fetcher<{ success: boolean }>(`/category/${id}`, {
     method: "DELETE",
   });
 };
 
-export const deleteSubCategory = async (id: string) => {
-  return fetcher<{ success: boolean }>(`/sub-category/${id}`, {
-    method: "DELETE",
-  });
-};
-export const updateMainCategory = async (id: string, title: string) => {
-  return fetcher<{ success: boolean }>(`/main-category/${id}`, {
-    method: "PUT",
-    body: { title },
-  });
-};
-export const updateSubCategory = async (id: string, title: string) => {
-  return fetcher<{ success: boolean }>(`/sub-category/${id}`, {
+export const updateCategory = async (id: string, title: string) => {
+  return fetcher<{ success: boolean }>(`/category/${id}`, {
     method: "PUT",
     body: { title },
   });
