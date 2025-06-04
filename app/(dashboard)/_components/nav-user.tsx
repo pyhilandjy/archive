@@ -18,18 +18,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUser } from "@/hooks/use-login-mutation";
+import { useUser, useLogoutMutation } from "@/hooks/use-login-mutation";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data, isLoading, isError } = useUser();
   const router = useRouter();
+  const logoutMutation = useLogoutMutation();
 
   useEffect(() => {
-    if (isError) {
+    if (isError && !isLoading) {
       router.push("/login");
     }
-  }, [isError, router]);
+  }, [isError, isLoading, router]);
 
   if (isLoading || !data || !Array.isArray(data) || data.length === 0)
     return null;
@@ -37,6 +38,14 @@ export function NavUser() {
   const email = data[0].email;
   const user = {
     email,
+  };
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.push("/login");
+      },
+    });
   };
 
   return (
@@ -79,7 +88,9 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              {" "}
+              {/* 로그아웃 기능 추가 */}
               <LogOut />
               Log out
             </DropdownMenuItem>
