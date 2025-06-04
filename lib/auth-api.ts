@@ -33,3 +33,9 @@ export const me = async () => {
     method: "GET",
   });
 };
+
+export const logout = async () => {
+  return fetcher("/logout", {
+    method: "POST",
+  });
+};
