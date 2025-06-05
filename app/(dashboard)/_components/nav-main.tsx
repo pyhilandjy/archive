@@ -45,6 +45,7 @@ export function NavMain() {
   const [editValue, setEditValue] = useState("");
   const mainInputRef = useRef<HTMLInputElement | null>(null);
   const subInputRef = useRef<HTMLInputElement | null>(null);
+  const [shouldFocus, setShouldFocus] = useState(false);
 
   const [openIds, setOpenIds] = useAccordionPersistedState();
 
@@ -53,19 +54,22 @@ export function NavMain() {
   }, []);
 
   useEffect(() => {
-    if (!editingId) return;
-    // 메인 카테고리 input에 진입한 경우
-    const isMain = categories.some((cat) => cat.id === editingId);
-    if (isMain && mainInputRef.current) {
-      mainInputRef.current.focus();
-      mainInputRef.current.select();
-    }
-    // 서브카테고리 input에 진입한 경우
-    if (!isMain && subInputRef.current) {
-      subInputRef.current.focus();
-      subInputRef.current.select();
-    }
-  }, [editingId, categories]);
+    if (!editingId || !shouldFocus) return;
+
+    const timer = setTimeout(() => {
+      const isMain = categories.some((cat) => cat.id === editingId);
+      if (isMain && mainInputRef.current) {
+        mainInputRef.current.focus();
+        mainInputRef.current.select();
+      } else if (!isMain && subInputRef.current) {
+        subInputRef.current.focus();
+        subInputRef.current.select();
+      }
+      setShouldFocus(false);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [editingId, shouldFocus, categories]);
 
   function handleAccordionToggle(mainCategoryId: string) {
     setOpenIds((prev) =>
@@ -197,6 +201,7 @@ export function NavMain() {
                         className="w-48 rounded-lg"
                         side={isMobile ? "bottom" : "right"}
                         align={isMobile ? "end" : "start"}
+                        onCloseAutoFocus={(e) => e.preventDefault()}
                       >
                         <DropdownMenuItem
                           onClick={() => {
@@ -256,6 +261,7 @@ export function NavMain() {
                             className="w-48 rounded-lg"
                             side={isMobile ? "bottom" : "right"}
                             align={isMobile ? "end" : "start"}
+                            onCloseAutoFocus={(e) => e.preventDefault()}
                           >
                             <DropdownMenuItem
                               onClick={() => {
