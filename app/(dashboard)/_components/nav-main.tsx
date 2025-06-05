@@ -2,6 +2,7 @@
 
 import { MoreHorizontal, Pencil, Trash2, Plus, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useAccordionPersistedState } from "@/hooks/use-accordion-persisted-state";
 
 import {
   SidebarGroup,
@@ -15,7 +16,6 @@ import {
   SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
   MainCategory,
   getCategories,
@@ -44,18 +43,37 @@ export function NavMain() {
   const [categories, setCategories] = useState<MainCategory[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const mainInputRef = useRef<HTMLInputElement | null>(null);
+  const subInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [openIds, setOpenIds] = useAccordionPersistedState();
 
   useEffect(() => {
     getCategories().then(setCategories);
   }, []);
 
   useEffect(() => {
-    if (editingId && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+    if (!editingId) return;
+    // 메인 카테고리 input에 진입한 경우
+    const isMain = categories.some((cat) => cat.id === editingId);
+    if (isMain && mainInputRef.current) {
+      mainInputRef.current.focus();
+      mainInputRef.current.select();
     }
-  }, [editingId]);
+    // 서브카테고리 input에 진입한 경우
+    if (!isMain && subInputRef.current) {
+      subInputRef.current.focus();
+      subInputRef.current.select();
+    }
+  }, [editingId, categories]);
+
+  function handleAccordionToggle(mainCategoryId: string) {
+    setOpenIds((prev) =>
+      prev.includes(mainCategoryId)
+        ? prev.filter((id) => id !== mainCategoryId)
+        : [...prev, mainCategoryId]
+    );
+  }
 
   const handleAddCategory = async () => {
     const fallbackTitle = "새 카테고리";
@@ -76,6 +94,11 @@ export function NavMain() {
     await postSubCategory(mainCategoryId, fallbackTitle);
     const updatedCategories = await getCategories();
     setCategories(updatedCategories);
+
+    setOpenIds((prev) =>
+      prev.includes(mainCategoryId) ? prev : [...prev, mainCategoryId]
+    );
+
     const parentCategory = updatedCategories.find(
       (cat) => cat.id === mainCategoryId
     );
@@ -91,11 +114,18 @@ export function NavMain() {
   const handleRename = async (id: string) => {
     if (editValue.trim()) {
       await updateCategory(id, editValue.trim());
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === id ? { ...cat, title: editValue.trim() } : cat
-        )
+
+      const updatedCategories = await getCategories();
+      setCategories(updatedCategories);
+
+      const parentCategory = updatedCategories.find((cat) =>
+        cat.sub_categories?.some((sub) => sub.id === id)
       );
+      if (parentCategory) {
+        setOpenIds((prev) =>
+          prev.includes(parentCategory.id) ? prev : [...prev, parentCategory.id]
+        );
+      }
     }
     setEditingId(null);
   };
@@ -103,6 +133,19 @@ export function NavMain() {
   const handleDeleteCategory = async (id: string) => {
     await deleteCategory(id);
     setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  };
+
+  // ESC로 rename 취소
+  const handleKeyDown = (
+    id: string,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter") {
+      handleRename(id);
+    }
+    if (e.key === "Escape") {
+      setEditingId(null);
+    }
   };
 
   return (
@@ -123,7 +166,13 @@ export function NavMain() {
 
       <SidebarMenu>
         {categories.map((cat) => (
-          <Collapsible key={cat.id} asChild className="group/collapsible">
+          <Collapsible
+            key={cat.id}
+            asChild
+            className="group/collapsible"
+            open={openIds.includes(cat.id)}
+            onOpenChange={() => handleAccordionToggle(cat.id)}
+          >
             <SidebarMenuItem className="flex flex-col gap-1">
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between">
@@ -174,13 +223,10 @@ export function NavMain() {
               {editingId === cat.id && (
                 <div className="mt-1 ml-2 flex items-center gap-2">
                   <Input
-                    ref={inputRef}
+                    ref={mainInputRef}
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleRename(cat.id);
-                    }}
-                    onBlur={() => handleRename(cat.id)}
+                    onKeyDown={(e) => handleKeyDown(cat.id, e)}
                     className="h-7 text-sm"
                   />
                   <button
@@ -237,13 +283,10 @@ export function NavMain() {
                       {editingId === sub.id && (
                         <div className="mt-1 ml-2 flex items-center gap-2">
                           <Input
-                            ref={inputRef}
+                            ref={subInputRef}
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleRename(sub.id);
-                            }}
-                            onBlur={() => handleRename(sub.id)}
+                            onKeyDown={(e) => handleKeyDown(sub.id, e)}
                             className="h-7 text-sm"
                           />
                           <button
