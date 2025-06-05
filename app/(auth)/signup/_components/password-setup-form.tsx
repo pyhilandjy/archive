@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSignupMutation } from "@/hooks/use-signup-mutation";
-import SignupSuccessModal from "./_modal/signup-success"; // ✅ default export면 {} 없이 import
+import SignupSuccessModal from "./_modal/signup-success";
 
 export function PasswordSetupForm({
   email,
@@ -24,7 +24,7 @@ export function PasswordSetupForm({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [validationError, setValidationError] = useState("");
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // ✅ 모달 상태
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const signupMutation = useSignupMutation();
 
   const handlePasswordChange = (value: string) => {
