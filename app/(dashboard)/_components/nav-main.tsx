@@ -3,6 +3,7 @@
 import { MoreHorizontal, Pencil, Trash2, Plus, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAccordionPersistedState } from "@/hooks/use-accordion-persisted-state";
+import { useRouter } from "next/navigation";
 
 import {
   SidebarGroup,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/collapsible";
 
 export function NavMain() {
+  const router = useRouter();
   const { isMobile } = useSidebar();
   const [categories, setCategories] = useState<MainCategory[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -154,13 +156,19 @@ export function NavMain() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="flex h-8 items-center justify-between px-2">
+      <SidebarGroupLabel
+        className="flex h-8 items-center justify-between px-2"
+        onClick={() => router.push("/main")}
+      >
         <span className="text-sm font-semibold text-muted-foreground">
-          카테고리
+          전체페이지
         </span>
         <div className="flex items-center">
           <SidebarMenuAction
-            onClick={handleAddCategory}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddCategory();
+            }}
             className="relative top-0"
           >
             <Plus className="h-4 w-4" />
@@ -246,7 +254,10 @@ export function NavMain() {
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {(cat.sub_categories ?? []).map((sub) => (
-                    <SidebarMenuSubItem key={sub.id}>
+                    <SidebarMenuSubItem
+                      key={sub.id}
+                      onClick={() => router.push(`/category/${sub.id}`)}
+                    >
                       <div className="flex items-center justify-between">
                         <SidebarMenuSubButton>
                           <span>{sub.title}</span>
