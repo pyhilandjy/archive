@@ -19,3 +19,9 @@ export const getUsersCategoryContentsList = async (
     method: "GET",
   });
 };
+
+export const deleteContent = async (contentId: string): Promise<void> => {
+  await fetcher(`/contents/${contentId}`, {
+    method: "DELETE",
+  });
+};
