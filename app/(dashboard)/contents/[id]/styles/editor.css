@@ -34,6 +34,11 @@
     padding-left: 1.5em;
     list-style-type: disc !important;
   }
+  .tiptap-ordered-list {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    list-style-type: decimal !important;
+  }
   .tiptap-list-item {
     margin: 0.25em 0;
     position: relative;
