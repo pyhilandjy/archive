@@ -27,7 +27,7 @@ export function VideoPlayer({
         width="100%"
         height="100%"
         playing={false}
-        light={thumbnailPath || undefined} // 썸네일 이미지
+        light={thumbnailPath || undefined}
         onPlay={() => console.log("Video is playing")}
         onPause={() => console.log("Video is paused")}
         onError={(e) => console.error("Video error:", e)}
