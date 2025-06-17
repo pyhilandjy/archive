@@ -37,3 +37,14 @@ export const updateContentsDescription = async (
     body: { description },
   });
 };
+
+export interface CategoryIdByContents {
+  category_id: string;
+}
+
+export const getCategoryIdByContentsId = async (contentsId: string) => {
+  return await fetcher<CategoryIdByContents>(
+    `/contents/${contentsId}/category_id`,
+    { method: "GET" }
+  );
+};

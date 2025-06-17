@@ -38,8 +38,6 @@ export default function PostPage({ params }: ContentsPageProps) {
             setVideoPath(data.video_path || null);
             setThumbnailPath(data.thumbnail_path || null);
             setDescription(data.description || "");
-            console.log("Data loaded:", data);
-            console.log("Title loaded:", data.title || "제목 없음");
           } else {
             console.error("No data returned from getContentsById");
           }

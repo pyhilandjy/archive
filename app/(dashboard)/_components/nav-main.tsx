@@ -38,6 +38,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { getCategoryIdByContentsId } from "@/lib/contents-api";
 
 export function NavMain() {
   const router = useRouter();
@@ -137,8 +138,50 @@ export function NavMain() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    await deleteCategory(id);
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+    console.log("handleDeleteCategory called");
+
+    try {
+      await deleteCategory(id);
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
+
+    const currentPath = window.location.pathname;
+    if (currentPath.includes(id)) {
+      router.push("/main");
+    }
+  };
+
+  const handleDeleteSubCategory = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 전파 차단
+
+    try {
+      const currentPath = window.location.pathname;
+      if (currentPath.includes("contents")) {
+        const contentId = currentPath.split("/contents/")[1];
+
+        // BE에 GET 요청으로 category_id와 연결 여부 확인
+        const response = await getCategoryIdByContentsId(contentId);
+        if (response.category_id === id) {
+          await deleteCategory(id);
+          const updatedCategories = await getCategories();
+          setCategories(updatedCategories);
+
+          router.push("/main");
+        } else {
+          await deleteCategory(id);
+          const updatedCategories = await getCategories();
+          setCategories(updatedCategories);
+        }
+      } else {
+        await deleteCategory(id);
+        const updatedCategories = await getCategories();
+        setCategories(updatedCategories);
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
   };
 
   // ESC로 rename 취소
@@ -285,11 +328,9 @@ export function NavMain() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={async () => {
-                                await deleteCategory(sub.id);
-                                const updatedCategories = await getCategories();
-                                setCategories(updatedCategories);
-                              }}
+                              onClick={(e) =>
+                                handleDeleteSubCategory(sub.id, e)
+                              }
                             >
                               <Trash2 className="text-muted-foreground mr-2 h-4 w-4" />
                               삭제
