@@ -174,10 +174,18 @@ export function NavMain() {
           const updatedCategories = await getCategories();
           setCategories(updatedCategories);
         }
-      } else {
-        await deleteCategory(id);
-        const updatedCategories = await getCategories();
-        setCategories(updatedCategories);
+      } else if (currentPath.includes("category")) {
+        const categoryId = currentPath.split("/category/")[1];
+        if (categoryId === id) {
+          await deleteCategory(id);
+          const updatedCategories = await getCategories();
+          setCategories(updatedCategories);
+          router.push("/main");
+        } else {
+          await deleteCategory(id);
+          const updatedCategories = await getCategories();
+          setCategories(updatedCategories);
+        }
       }
     } catch (error) {
       console.error("Error deleting category:", error);
