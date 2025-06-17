@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Heading from "@tiptap/extension-heading";
 import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 
 export interface TiptapEditorProps {
@@ -61,6 +62,9 @@ export function MarkdownEditor({
         HTMLAttributes: { class: "tiptap-bullet-list" },
         keepMarks: true,
         keepAttributes: true,
+      }),
+      OrderedList.configure({
+        HTMLAttributes: { class: "tiptap-ordered-list" },
       }),
       ListItem.configure({
         HTMLAttributes: { class: "tiptap-list-item" },
