@@ -11,7 +11,6 @@ interface HeaderProps {
 
 export function Header({
   title,
-  id,
   isSaving,
   lastSaved,
   isDescriptionOnRight,
@@ -39,7 +38,6 @@ export function Header({
               {title || "제목 없음"} {/* 빈 경우 기본값 */}
             </h1>
           </div>
-          <div className="text-sm text-slate-500">ID: {id}</div>
         </div>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-sm">
