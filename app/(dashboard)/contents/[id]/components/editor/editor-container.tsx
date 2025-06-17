@@ -25,7 +25,7 @@ export function EditorContainer({
         bg-white flex flex-col shadow-lg
       `}
       style={{
-        height: isDescriptionOnRight ? "60vh" : "auto", // 하단 모드에서 auto로 설정
+        height: isDescriptionOnRight ? "60vh" : "100vh",
         overflowY: isDescriptionOnRight ? "auto" : "visible",
       }}
     >
