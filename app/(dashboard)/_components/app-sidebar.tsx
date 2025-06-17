@@ -110,7 +110,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div>sidebar-header</div>
+        <div>아카이브</div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
