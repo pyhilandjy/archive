@@ -203,7 +203,7 @@ export function PasswordSetupForm({
               </div>
               <div className="mt-4 text-center text-sm">
                 다른 이메일을 사용하시겠습니까?{" "}
-                <a href="#" className="underline underline-offset-4">
+                <a href="/login" className="underline underline-offset-4">
                   처음부터 시작
                 </a>
               </div>
