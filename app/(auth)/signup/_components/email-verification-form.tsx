@@ -24,11 +24,13 @@ import {
 export function EmailVerificationForm({
   email,
   onSuccess,
+  mode = "signup",
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & {
   email: string;
   onSuccess: () => void;
+  mode?: "signup" | "password-reset";
 }) {
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(300); // 5분(300초)
@@ -55,7 +57,7 @@ export function EmailVerificationForm({
     setErrorMessage("");
 
     try {
-      const response = await verificationMutation.mutateAsync({ email });
+      const response = await verificationMutation.mutateAsync({ email, mode });
       if (response.success) {
         setTimeLeft(300);
       }

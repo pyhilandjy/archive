@@ -15,10 +15,10 @@ export const signup = async (email: string, password: string) => {
   });
 };
 
-export const verifyEmail = async (email: string) => {
+export const verifyEmail = async (email: string, mode: string) => {
   return await fetcher<{ success: boolean }>("/verify/request", {
     method: "POST",
-    body: { email },
+    body: { email, mode },
   });
 };
 export const requestVerification = async (email: string, otp: string) => {
@@ -50,9 +50,9 @@ export const checkEmailExists = async (email: string) => {
   return result[0]; // 배열의 첫 번째 요소 반환
 };
 
-export const resetPassword = async (email: string, newPassword: string) => {
+export const resetPassword = async (email: string, new_password: string) => {
   return fetcher<{ success: boolean }>("/reset-password", {
     method: "POST",
-    body: { email, newPassword },
+    body: { email, new_password },
   });
 };

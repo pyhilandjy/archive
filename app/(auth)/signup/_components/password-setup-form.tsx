@@ -13,13 +13,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSignupMutation } from "@/hooks/use-signup-mutation";
+import { resetPassword } from "@/lib/auth-api";
 import SignupSuccessModal from "./_modal/signup-success";
 
 export function PasswordSetupForm({
   email,
+  mode = "signup",
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div"> & { email: string }) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  email: string;
+  mode?: "signup" | "password-reset";
+}) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -52,32 +57,48 @@ export function PasswordSetupForm({
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /\d/.test(password);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationError = validatePasswords();
     setError(validationError);
+
     if (!validationError) {
-      signupMutation.mutate(
-        { email, password },
-        {
-          onSuccess: () => {
-            setShowSuccessModal(true); // ✅ 모달 열기
-          },
-          onError: (error) => {
-            if (error instanceof Error && error.message.includes("422")) {
-              try {
-                const errorText = JSON.parse(error.message.split(": ")[1]);
-                const errorDetail =
-                  errorText.detail?.[0]?.msg ||
-                  "비밀번호 조건에 충족하지 못합니다.";
-                setValidationError(errorDetail);
-              } catch {
-                setValidationError("비밀번호 조건에 충족하지 못합니다.");
+      if (mode === "signup") {
+        // 회원가입 로직
+        signupMutation.mutate(
+          { email, password },
+          {
+            onSuccess: () => {
+              setShowSuccessModal(true); // 회원가입 성공 모달 열기
+            },
+            onError: (error) => {
+              if (error instanceof Error && error.message.includes("422")) {
+                try {
+                  const errorText = JSON.parse(error.message.split(": ")[1]);
+                  const errorDetail =
+                    errorText.detail?.[0]?.msg ||
+                    "비밀번호 조건에 충족하지 못합니다.";
+                  setValidationError(errorDetail);
+                } catch {
+                  setValidationError("비밀번호 조건에 충족하지 못합니다.");
+                }
               }
-            }
-          },
+            },
+          }
+        );
+      } else if (mode === "password-reset") {
+        // 비밀번호 재설정 로직
+        try {
+          const response = await resetPassword(email, password);
+          if (response.success) {
+            setShowSuccessModal(true); // 비밀번호 재설정 성공 모달 열기
+          } else {
+            setValidationError("비밀번호 재설정에 실패했습니다.");
+          }
+        } catch {
+          setValidationError("비밀번호 재설정 중 오류가 발생했습니다.");
         }
-      );
+      }
     }
   };
 

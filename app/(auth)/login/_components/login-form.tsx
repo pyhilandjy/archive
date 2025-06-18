@@ -64,12 +64,12 @@ export function LoginForm({
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">비밀번호</Label>
-                  <a
-                    href="#"
+                  <Link
+                    href="/password-reset"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     비밀번호를 잊으셨나요?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   id="password"

@@ -15,21 +15,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useVerficationEmailMutation } from "@/hooks/use-signup-mutation";
+import { checkEmailExists } from "@/lib/auth-api";
 import { extractErrorMessage } from "@/lib/extract-error-message";
 
 export function SignUpForm({
   setEmail,
   onSuccess,
+  mode = "signup",
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & {
   setEmail: (email: string) => void;
   onSuccess: () => void;
+  mode?: "signup" | "password-reset"; // 모드 추가
 }) {
   const [localEmail, setLocalEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const mutation = useVerficationEmailMutation();
+  const verificationEmailMutation = useVerficationEmailMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,14 +40,31 @@ export function SignUpForm({
     setSuccessMessage("잠시만 기다려 주세요.");
 
     try {
-      const response = await mutation.mutateAsync({ email: localEmail });
+      if (mode === "password-reset") {
+        const response = await checkEmailExists(localEmail);
+        console.log("Email existence check response:", response.exists);
+        if (!response.exists) {
+          setErrorMessage("존재하지 않는 이메일입니다.");
+          return;
+        }
+      }
+
+      // 이메일 인증 요청
+      const response = await verificationEmailMutation.mutateAsync({
+        email: localEmail,
+        mode: mode,
+      });
 
       if (response.success) {
         setEmail(localEmail);
         onSuccess();
       } else {
         setSuccessMessage("");
-        setErrorMessage("이메일 인증 요청에 실패했습니다.");
+        setErrorMessage(
+          mode === "signup"
+            ? "이메일 인증 요청에 실패했습니다."
+            : "비밀번호 재설정 요청에 실패했습니다."
+        );
       }
     } catch (error: unknown) {
       setSuccessMessage("");
@@ -55,47 +75,40 @@ export function SignUpForm({
         error.body !== null &&
         "detail" in error.body
       ) {
-        if (
-          error instanceof FetchError &&
-          typeof error.body === "object" &&
-          error.body !== null &&
-          "detail" in error.body
-        ) {
-          const detail = (
-            error.body as {
-              detail:
-                | Array<{
-                    type?: string;
-                    msg?: string;
-                    ctx?: { reason?: string };
-                  }>
-                | string;
-            }
-          ).detail;
-
-          if (Array.isArray(detail)) {
-            const first = detail[0];
-
-            if (
-              typeof first === "object" &&
-              first !== null &&
-              first.type === "value_error" &&
-              first.msg?.includes("valid email address")
-            ) {
-              setErrorMessage("유효하지 않은 이메일입니다.");
-              return;
-            }
-
-            if (typeof first.msg === "string") {
-              setErrorMessage(first.msg);
-              return;
-            }
+        const detail = (
+          error.body as {
+            detail:
+              | Array<{
+                  type?: string;
+                  msg?: string;
+                  ctx?: { reason?: string };
+                }>
+              | string;
           }
+        ).detail;
 
-          if (typeof detail === "string") {
-            setErrorMessage(detail);
+        if (Array.isArray(detail)) {
+          const first = detail[0];
+
+          if (
+            typeof first === "object" &&
+            first !== null &&
+            first.type === "value_error" &&
+            first.msg?.includes("valid email address")
+          ) {
+            setErrorMessage("유효하지 않은 이메일입니다.");
             return;
           }
+
+          if (typeof first.msg === "string") {
+            setErrorMessage(first.msg);
+            return;
+          }
+        }
+
+        if (typeof detail === "string") {
+          setErrorMessage(detail);
+          return;
         }
       }
 
@@ -109,9 +122,13 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">회원가입</CardTitle>
+          <CardTitle className="text-2xl">
+            {mode === "signup" ? "회원가입" : "비밀번호 찾기"}
+          </CardTitle>
           <CardDescription>
-            계정을 생성하려면 이메일을 입력해주세요
+            {mode === "signup"
+              ? "계정을 생성하려면 이메일을 입력해주세요"
+              : "찾으실 비밀번호의 이메일을 입력해주세요"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -137,12 +154,14 @@ export function SignUpForm({
                 인증 이메일 발송
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              이미 계정이 있으신가요?{" "}
-              <Link href="/login" className="underline underline-offset-4">
-                로그인
-              </Link>
-            </div>
+            {mode === "signup" && (
+              <div className="mt-4 text-center text-sm">
+                이미 계정이 있으신가요?{" "}
+                <Link href="/login" className="underline underline-offset-4">
+                  로그인
+                </Link>
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

@@ -3,11 +3,12 @@ import { verifyEmail, requestVerification, signup } from "@/lib/auth-api";
 
 export interface EmailInput {
   email: string;
+  mode: "signup" | "password-reset";
 }
 
 export function useVerficationEmailMutation() {
   return useMutation({
-    mutationFn: ({ email }: EmailInput) => verifyEmail(email),
+    mutationFn: ({ email, mode }: EmailInput) => verifyEmail(email, mode),
   });
 }
 
