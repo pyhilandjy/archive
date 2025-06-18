@@ -1,7 +1,9 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { extractErrorMessage } from "@/lib/extract-error-message";
+import { FetchError } from "@/lib/fetcher";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,9 +49,31 @@ export function EmailVerificationForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await checkMutation.mutateAsync({ email, otp });
-    if (response.success) {
-      onSuccess();
+    setErrorMessage(""); // 기존 오류 메시지 초기화
+
+    try {
+      const response = await checkMutation.mutateAsync({ email, otp });
+
+      if (response.success) {
+        onSuccess();
+      }
+    } catch (error: unknown) {
+      if (error instanceof FetchError) {
+        if (
+          error.body &&
+          typeof error.body === "object" &&
+          "detail" in error.body
+        ) {
+          const detailMessage =
+            (error.body as { detail: { msg: string }[] }).detail?.[0]?.msg ||
+            "알 수 없는 오류가 발생했습니다.";
+          setErrorMessage(detailMessage);
+        } else {
+          setErrorMessage("요청 처리 중 오류가 발생했습니다.");
+        }
+      } else {
+        setErrorMessage("인증 확인 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -59,7 +83,7 @@ export function EmailVerificationForm({
     try {
       const response = await verificationMutation.mutateAsync({ email, mode });
       if (response.success) {
-        setTimeLeft(300);
+        setTimeLeft(300); // 타이머 초기화
       }
     } catch (error: unknown) {
       const message = extractErrorMessage(error);
@@ -71,9 +95,13 @@ export function EmailVerificationForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">이메일 인증</CardTitle>
+          <CardTitle className="text-2xl">
+            {mode === "signup" ? "이메일 인증" : "비밀번호 재설정 인증"}
+          </CardTitle>
           <CardDescription>
-            입력하신 이메일로 발송된 6자리 인증번호를 입력해주세요
+            {mode === "signup"
+              ? "입력하신 이메일로 발송된 6자리 인증번호를 입력해주세요."
+              : "비밀번호 재설정을 위해 이메일로 발송된 인증번호를 입력해주세요."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,7 +122,7 @@ export function EmailVerificationForm({
                   </InputOTP>
                 </div>
                 <p className="text-sm text-muted-foreground text-center">
-                  {email}으로 인증번호를 발송했습니다
+                  {email}으로 인증번호를 발송했습니다.
                 </p>
                 <p className="text-sm text-muted-foreground text-center">
                   인증번호 유효시간: {Math.floor(timeLeft / 60)}분{" "}
@@ -125,7 +153,9 @@ export function EmailVerificationForm({
               )}
             </div>
             <div className="mt-4 text-center text-sm">
-              다른 이메일을 사용하시겠습니까?{" "}
+              {mode === "signup"
+                ? "다른 이메일을 사용하시겠습니까?"
+                : "인증번호를 다시 요청하시겠습니까?"}{" "}
               <a href="#" className="underline underline-offset-4">
                 이메일 변경
               </a>
