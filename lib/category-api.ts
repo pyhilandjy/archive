@@ -1,7 +1,7 @@
 import { fetcher } from "./fetcher";
 
 export const postCategory = async (title: string) => {
-  return fetcher<{ success: boolean }>("/category", {
+  return await fetcher<{ success: boolean }>("/category", {
     method: "POST",
     body: { title },
   });
@@ -19,7 +19,7 @@ export interface MainCategory {
 }
 
 export const getCategories = async (): Promise<MainCategory[]> => {
-  return fetcher<MainCategory[]>("/categories", {
+  return await fetcher<MainCategory[]>("/categories", {
     method: "GET",
   });
 };
@@ -33,20 +33,20 @@ export async function postMainCategory(title: string): Promise<MainCategory> {
 }
 
 export const postSubCategory = async (parents_id: string, title: string) => {
-  return fetcher<{ success: boolean }>("/sub-category", {
+  return await fetcher<{ success: boolean }>("/sub-category", {
     method: "POST",
     body: { parents_id, title },
   });
 };
 
 export const deleteCategory = async (id: string) => {
-  return fetcher<{ success: boolean }>(`/category/${id}`, {
+  return await fetcher<{ success: boolean }>(`/category/${id}`, {
     method: "DELETE",
   });
 };
 
 export const updateCategory = async (id: string, title: string) => {
-  return fetcher<{ success: boolean }>(`/category/${id}`, {
+  return await fetcher<{ success: boolean }>(`/category/${id}`, {
     method: "PUT",
     body: { title },
   });

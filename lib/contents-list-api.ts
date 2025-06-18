@@ -7,7 +7,7 @@ export interface ContentsList {
 }
 
 export const getUsersContentsList = async (): Promise<ContentsList[]> => {
-  return fetcher<ContentsList[]>("/contents-list", {
+  return await fetcher<ContentsList[]>("/contents-list", {
     method: "GET",
   });
 };
@@ -15,13 +15,16 @@ export const getUsersContentsList = async (): Promise<ContentsList[]> => {
 export const getUsersCategoryContentsList = async (
   categoryId: string
 ): Promise<ContentsList[]> => {
-  return fetcher<ContentsList[]>(`/contents-list/category/${categoryId}`, {
-    method: "GET",
-  });
+  return await fetcher<ContentsList[]>(
+    `/contents-list/category/${categoryId}`,
+    {
+      method: "GET",
+    }
+  );
 };
 
 export const deleteContent = async (contentId: string): Promise<void> => {
-  await fetcher(`/contents/${contentId}`, {
+  await await fetcher(`/contents/${contentId}`, {
     method: "DELETE",
   });
 };
