@@ -155,9 +155,9 @@ export function EmailVerificationForm({
             <div className="mt-4 text-center text-sm">
               {mode === "signup"
                 ? "다른 이메일을 사용하시겠습니까?"
-                : "인증번호를 다시 요청하시겠습니까?"}{" "}
-              <a href="#" className="underline underline-offset-4">
-                이메일 변경
+                : "회원가입을 다시 하시겠습니까?"}{" "}
+              <a href="/signup" className="underline underline-offset-4">
+                {mode === "signup" ? "이메일 변경" : "회원가입"}
               </a>
             </div>
           </form>
