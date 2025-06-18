@@ -104,15 +104,18 @@ export function PasswordSetupForm({
 
   return (
     <>
-      <SignupSuccessModal open={showSuccessModal} />
+      <SignupSuccessModal open={showSuccessModal} mode={mode} />
 
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">비밀번호 설정</CardTitle>
+            <CardTitle className="text-2xl">
+              {mode === "signup" ? "비밀번호 설정" : "비밀번호 재설정"}
+            </CardTitle>
             <CardDescription>
-              이메일 인증이 완료되었습니다. 회원가입을 완료하려면 비밀번호를
-              설정해주세요.
+              {mode === "signup"
+                ? "이메일 인증이 완료되었습니다. 회원가입을 완료하려면 비밀번호를 설정해주세요."
+                : "새로운 비밀번호를 설정해주세요."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -193,9 +196,9 @@ export function PasswordSetupForm({
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={signupMutation.isPending}
+                  disabled={signupMutation.isPending && mode === "signup"}
                 >
-                  회원가입 완료
+                  {mode === "signup" ? "회원가입 완료" : "비밀번호 재설정"}
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm">
