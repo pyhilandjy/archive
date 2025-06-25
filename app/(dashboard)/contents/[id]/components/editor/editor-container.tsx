@@ -25,7 +25,7 @@ export function EditorContainer({
         bg-white flex flex-col shadow-lg
       `}
       style={{
-        height: isDescriptionOnRight ? "60vh" : "100vh",
+        height: isDescriptionOnRight ? "90vh" : "100vh",
         overflowY: isDescriptionOnRight ? "auto" : "visible",
       }}
     >
