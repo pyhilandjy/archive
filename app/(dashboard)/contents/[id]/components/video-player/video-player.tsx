@@ -174,7 +174,7 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
       <video
         ref={videoRef}
         className="w-full h-full object-contain"
-        poster={thumbnailPath || undefined}
+        poster={thumbnailPath || "/public/no-thumbnail.png"}
         onClick={togglePlay}
         onDoubleClick={() => {
           if (document.fullscreenElement) {
