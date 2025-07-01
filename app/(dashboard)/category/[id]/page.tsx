@@ -7,6 +7,7 @@ import { InfiniteScroll } from "@/components/ui/infinite-scroll";
 import { useInfiniteContents } from "@/hooks/use-infinite-media";
 import { PostButton } from "./components/post-button";
 import { PostModal } from "./components/post-modal";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 interface CategoryPageProps {
   params: Promise<{ id: string }>;
@@ -15,6 +16,8 @@ interface CategoryPageProps {
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { id } = use(params);
   const [open, setOpen] = useState(false);
+
+  useWebSocket();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteContents(id);
