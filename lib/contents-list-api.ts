@@ -4,6 +4,7 @@ export interface ContentsList {
   id: string;
   title: string;
   thumbnail_path: string;
+  status: string;
 }
 
 export const getUsersContentsList = async (): Promise<ContentsList[]> => {
