@@ -3,8 +3,11 @@
 import { Grid } from "./components/list-grid";
 import { InfiniteScroll } from "@/components/ui/infinite-scroll";
 import { useInfiniteContents } from "@/hooks/use-infinite-media";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 export default function MainPage() {
+  useWebSocket();
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteContents();
 
