@@ -1,35 +1,41 @@
 let socket: WebSocket | null = null;
+
 type Callback = (data: Record<string, unknown>) => void;
-const listeners: Callback[] = [];
+const listeners: Set<Callback> = new Set();
 
 export function connectWebSocket(): void {
   if (socket && socket.readyState === WebSocket.OPEN) return;
 
   const baseWsUrl = process.env.NEXT_PUBLIC_WS_URL;
-  if (!baseWsUrl) {
-    throw new Error("WebSocket URL is not configured.");
-  }
+  if (!baseWsUrl) throw new Error("WebSocket URL is not configured.");
 
   socket = new WebSocket(`${baseWsUrl}/ws`);
 
-  socket.onopen = () => console.log("WebSocket connection established.");
+  socket.onopen = () => {
+    console.log("✅ WebSocket connected.");
+  };
+
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
       listeners.forEach((callback) => callback(data));
     } catch {
-      console.warn("Invalid WebSocket message received:", event.data);
+      console.warn("❗ Invalid WebSocket message:", event.data);
     }
   };
+
+  socket.onerror = (error) => {
+    console.error("❗ WebSocket error:", error);
+  };
+
   socket.onclose = () => {
-    console.warn("WebSocket connection closed.");
+    console.warn("❌ WebSocket disconnected.");
     socket = null;
   };
-  socket.onerror = (error) => console.error("WebSocket error:", error);
 }
-
-export function onMessage(callback: Callback): void {
-  listeners.push(callback);
+export function onMessage(callback: Callback): () => void {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
 }
 
 export function disconnectWebSocket(): void {
