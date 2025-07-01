@@ -2,7 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ContentsList } from "@/lib/contents-list-api";
 import { Card as UICard } from "@/components/ui/card";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Loader2, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,6 @@ export function Card({ item, onDelete }: CardProps) {
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
     try {
       await deleteContent(item.id);
       setIsDeleted(true);
@@ -36,23 +35,56 @@ export function Card({ item, onDelete }: CardProps) {
   };
 
   const handleClick = () => {
-    router.push(`/contents/${item.id}`);
+    if (item.status === "DONE") {
+      router.push(`/contents/${item.id}`);
+    }
   };
 
-  if (isDeleted) return null;
-
-  return (
-    <UICard className="overflow-hidden cursor-pointer" onClick={handleClick}>
-      <div className="relative aspect-video">
+  const renderThumbnail = () => {
+    if (item.status === "ON_PROCESS") {
+      return (
+        <div className="flex items-center justify-center w-full h-full">
+          <Loader2 className="animate-spin h-6 w-6 text-gray-400" />
+        </div>
+      );
+    } else if (item.status === "NOT_STARTED") {
+      return (
+        <div className="flex items-center justify-center w-full h-full text-sm text-gray-400">
+          대기 중...
+        </div>
+      );
+    } else if (item.status === "FAILED") {
+      return (
+        <div className="flex items-center justify-center w-full h-full">
+          <AlertTriangle className="h-6 w-6 text-red-500" />
+        </div>
+      );
+    } else {
+      return (
         <Image
           src={item.thumbnail_path}
           alt={item.title}
           fill
           className="object-cover"
         />
-      </div>
+      );
+    }
+  };
+
+  if (isDeleted) return null;
+
+  return (
+    <UICard className="overflow-hidden cursor-pointer" onClick={handleClick}>
+      <div className="relative aspect-video">{renderThumbnail()}</div>
       <div className="p-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold truncate">{item.title}</h3>
+        <div>
+          <h3 className="text-lg font-semibold truncate">{item.title}</h3>
+          <div className="text-xs text-muted-foreground mt-1">
+            {item.status === "ON_PROCESS" && "처리 중..."}
+            {item.status === "NOT_STARTED" && "대기 중"}
+            {item.status === "FAILED" && "실패"}
+          </div>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="text-muted-foreground hover:text-foreground">
