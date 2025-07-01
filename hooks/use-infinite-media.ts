@@ -8,16 +8,18 @@ export function useInfiniteContents(categoryId?: string, pageSize: number = 9) {
   return useInfiniteQuery({
     queryKey: ["contents", categoryId],
     queryFn: async ({ pageParam = 1 }) => {
-      const data = categoryId
+      const fullList = categoryId
         ? await getUsersCategoryContentsList(categoryId)
         : await getUsersContentsList();
-      //   const data = await getUsersCategoryContentsList(categoryId);
 
       const start = (pageParam - 1) * pageSize;
       const end = start + pageSize;
+      const items = fullList.slice(start, end);
+
       return {
-        items: data.slice(start, end),
-        nextPage: end < data.length ? pageParam + 1 : undefined,
+        items,
+        total: fullList.length,
+        nextPage: end < fullList.length ? pageParam + 1 : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
