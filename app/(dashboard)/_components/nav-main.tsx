@@ -138,8 +138,6 @@ export function NavMain() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    console.log("handleDeleteCategory called");
-
     try {
       await deleteCategory(id);
       setCategories((prev) => prev.filter((cat) => cat.id !== id));

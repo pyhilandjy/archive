@@ -26,7 +26,6 @@ export function useContentManagement(params: Promise<{ id: string }>) {
             setVideoPath(data.video_path || null);
             setThumbnailPath(data.thumbnail_path || null);
             setDescription(data.description || "");
-            console.log("Data loaded:", data);
           } else {
             console.error("No data returned from getContentsById");
           }

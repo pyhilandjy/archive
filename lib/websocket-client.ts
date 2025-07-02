@@ -11,14 +11,19 @@ export function connectWebSocket(): void {
 
   socket = new WebSocket(`${baseWsUrl}/ws`);
 
-  socket.onopen = () => {
-    console.log("✅ WebSocket connected.");
-  };
+  socket.onopen = () => {};
 
-  socket.onmessage = (event) => {
+  socket.onmessage = (event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data);
-      listeners.forEach((callback) => callback(data));
+
+      listeners.forEach((callback) => {
+        try {
+          callback(data);
+        } catch (err) {
+          console.error("❗ Listener error:", err);
+        }
+      });
     } catch {
       console.warn("❗ Invalid WebSocket message:", event.data);
     }
@@ -33,9 +38,13 @@ export function connectWebSocket(): void {
     socket = null;
   };
 }
+
 export function onMessage(callback: Callback): () => void {
   listeners.add(callback);
-  return () => listeners.delete(callback);
+
+  return () => {
+    listeners.delete(callback);
+  };
 }
 
 export function disconnectWebSocket(): void {

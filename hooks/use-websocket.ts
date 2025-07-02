@@ -10,7 +10,8 @@ interface StatusUpdateMessage {
 }
 
 interface ContentsItem {
-  contents_id: string;
+  id: string; // contents_id가 아닌 id로 통일
+  contents_id?: string; // 백엔드에서 보내는 필드
   status: string;
   [key: string]: unknown;
 }
@@ -25,12 +26,13 @@ interface QueryData {
 }
 
 function isStatusUpdateMessage(data: unknown): data is StatusUpdateMessage {
+  const record = data as Record<string, unknown>;
   return (
     typeof data === "object" &&
     data !== null &&
-    (data as Record<string, unknown>).type === "status_update" &&
-    typeof (data as Record<string, unknown>).contents_id === "string" &&
-    typeof (data as Record<string, unknown>).status === "string"
+    record.type === "status_update" &&
+    typeof record.contents_id === "string" &&
+    typeof record.status === "string"
   );
 }
 
@@ -39,27 +41,62 @@ export const useWebSocket = (categoryId?: string) => {
 
   useEffect(() => {
     connectWebSocket();
-
     const unsubscribe = onMessage((data: unknown) => {
       if (isStatusUpdateMessage(data)) {
-        queryClient.setQueryData(["contents", categoryId], (prev: unknown) => {
-          const prevData = prev as QueryData;
-          if (!prevData?.pages) return prev;
+        const possibleKeys = [
+          ["contents", categoryId],
+          ["contents"],
+          ["contents", categoryId, "list"],
+          ["infinite-contents", categoryId],
+          ["media", categoryId],
+        ];
 
-          const newPages = prevData.pages.map((page) => ({
-            ...page,
-            items: page.items.map((item) =>
-              item.contents_id === data.contents_id
-                ? { ...item, status: data.status }
-                : item
-            ),
-          }));
+        let foundData = false;
 
-          return {
-            ...prevData,
-            pages: newPages,
-          };
-        });
+        for (const queryKey of possibleKeys) {
+          const existingData = queryClient.getQueryData(queryKey) as QueryData;
+
+          if (existingData?.pages) {
+            foundData = true;
+
+            // 데이터 업데이트
+            queryClient.setQueryData(queryKey, (prev: unknown) => {
+              const prevData = prev as QueryData;
+
+              const newPages = prevData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((item) => {
+                  const matches =
+                    item.id === data.contents_id ||
+                    item.contents_id === data.contents_id;
+
+                  if (matches) {
+                    return { ...item, status: data.status };
+                  }
+                  return item;
+                }),
+              }));
+
+              return {
+                ...prevData,
+                pages: newPages,
+              };
+            });
+            break;
+          }
+        }
+
+        if (!foundData) {
+          console.warn("⚠️ No existing data found, checking all queries...");
+
+          // fallback: 모든 contents 관련 쿼리 무효화
+          queryClient.invalidateQueries({
+            queryKey: ["contents"],
+            exact: false, // 하위 키도 모두 포함
+          });
+        }
+      } else {
+        console.warn("❌ Invalid message structure. Ignored.");
       }
     });
 

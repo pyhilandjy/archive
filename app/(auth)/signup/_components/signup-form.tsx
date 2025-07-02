@@ -42,7 +42,6 @@ export function SignUpForm({
     try {
       if (mode === "password-reset") {
         const response = await checkEmailExists(localEmail);
-        console.log("Email existence check response:", response.exists);
         if (!response.exists) {
           setErrorMessage("존재하지 않는 이메일입니다.");
           return;

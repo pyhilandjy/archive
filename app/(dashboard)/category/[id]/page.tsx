@@ -17,7 +17,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const { id } = use(params);
   const [open, setOpen] = useState(false);
 
-  useWebSocket();
+  useWebSocket(id);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteContents(id);

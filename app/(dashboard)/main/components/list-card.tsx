@@ -20,7 +20,6 @@ interface CardProps {
 export function Card({ item, onDelete }: CardProps) {
   const router = useRouter();
   const [isDeleted, setIsDeleted] = useState(false);
-
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -74,16 +73,16 @@ export function Card({ item, onDelete }: CardProps) {
   if (isDeleted) return null;
 
   return (
-    <UICard className="overflow-hidden cursor-pointer" onClick={handleClick}>
+    <UICard
+      className={`overflow-hidden ${
+        item.status === "DONE" ? "cursor-pointer" : ""
+      }`}
+      onClick={handleClick}
+    >
       <div className="relative aspect-video">{renderThumbnail()}</div>
       <div className="p-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold truncate">{item.title}</h3>
-          <div className="text-xs text-muted-foreground mt-1">
-            {item.status === "ON_PROCESS" && "처리 중..."}
-            {item.status === "NOT_STARTED" && "대기 중"}
-            {item.status === "FAILED" && "실패"}
-          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
