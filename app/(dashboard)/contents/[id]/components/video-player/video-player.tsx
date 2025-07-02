@@ -34,10 +34,22 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
   }, []);
 
   useEffect(() => {
+    const handleMouseMove = () => {
+      showHint();
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("mousemove", handleMouseMove);
+    }
+
     return () => {
+      if (container) {
+        container.removeEventListener("mousemove", handleMouseMove);
+      }
       clearHintTimeout();
     };
-  }, [clearHintTimeout]);
+  }, [showHint, clearHintTimeout]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -194,8 +206,6 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
       ref={containerRef}
       tabIndex={0}
       className="relative w-[60%] h-[60vh] bg-black mt-30 group focus:outline-none"
-      onMouseEnter={showHint}
-      onMouseLeave={clearHintTimeout}
     >
       <video
         ref={videoRef}
@@ -214,7 +224,12 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
         브라우저가 비디오를 지원하지 않습니다.
       </video>
 
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      {/* 재생바와 힌트 */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 ${
+          isHintVisible ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-200`}
+      >
         <div
           className="w-full h-2 bg-gray-600 rounded-full cursor-pointer mb-3"
           onClick={handleSeek}
@@ -273,6 +288,7 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
         </div>
       </div>
 
+      {/* 힌트 */}
       <div
         className={`absolute top-4 right-4 bg-black/70 text-white text-xs p-2 rounded ${
           isHintVisible ? "opacity-100" : "opacity-0"
