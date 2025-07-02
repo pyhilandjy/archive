@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 
 export interface VideoPlayerProps {
   videoPath: string | null;
@@ -13,6 +13,31 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [isHintVisible, setIsHintVisible] = useState(false);
+  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showHint = useCallback(() => {
+    setIsHintVisible(true);
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current);
+    }
+    hintTimeoutRef.current = setTimeout(() => {
+      setIsHintVisible(false);
+    }, 1500);
+  }, []);
+
+  const clearHintTimeout = useCallback(() => {
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearHintTimeout();
+    };
+  }, [clearHintTimeout]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -26,7 +51,6 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!video) return;
 
-      // INPUT, TEXTAREA 등에선 무시
       if (
         event.target &&
         ["INPUT", "TEXTAREA"].includes((event.target as HTMLElement).tagName)
@@ -170,6 +194,8 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
       ref={containerRef}
       tabIndex={0}
       className="relative w-[60%] h-[60vh] bg-black mt-30 group focus:outline-none"
+      onMouseEnter={showHint}
+      onMouseLeave={clearHintTimeout}
     >
       <video
         ref={videoRef}
@@ -185,8 +211,6 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
         }}
       >
         <source src={videoPath} type="video/mp4" />
-        <source src={videoPath} type="video/webm" />
-        <source src={videoPath} type="video/ogg" />
         브라우저가 비디오를 지원하지 않습니다.
       </video>
 
@@ -249,7 +273,11 @@ export function VideoPlayer({ videoPath, thumbnailPath }: VideoPlayerProps) {
         </div>
       </div>
 
-      <div className="absolute top-4 right-4 bg-black/70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div
+        className={`absolute top-4 right-4 bg-black/70 text-white text-xs p-2 rounded ${
+          isHintVisible ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-200`}
+      >
         <div>스페이스/K: 재생/일시정지</div>
         <div>←/→: 5초 이동</div>
         <div>J/L: 10초 이동</div>
