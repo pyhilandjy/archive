@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { postContents } from "@/lib/contents-api";
 
@@ -12,7 +12,7 @@ export function PostModal({
   onOpenChange: (val: boolean) => void;
   categoryId: string;
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,13 +20,16 @@ export function PostModal({
   const handlePostContent = async () => {
     setLoading(true);
     try {
-      const contents_id = await postContents({
+      await postContents({
         title,
         url,
         category_id: categoryId,
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["contents", categoryId ?? null],
+      });
+
       onOpenChange(false);
-      router.push(`/contents/${contents_id}`);
     } catch {
       alert("업로드 실패");
     } finally {
