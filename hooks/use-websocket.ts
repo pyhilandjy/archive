@@ -15,7 +15,7 @@ export const useWebSocket = (categoryId?: string) => {
     const unsubscribe = onMessage((data: Record<string, unknown>) => {
       if (data.type === "status_update") {
         queryClient.invalidateQueries({
-          queryKey: ["contents", categoryId ?? null],
+          queryKey: ["contents", categoryId],
         });
       }
     });
