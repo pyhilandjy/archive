@@ -93,6 +93,7 @@ export function NavMain() {
     if (newCategory) {
       setEditingId(newCategory.id);
       setEditValue(newCategory.title);
+      setShouldFocus(true);
     }
   };
 
@@ -115,6 +116,7 @@ export function NavMain() {
     if (newSubCategory) {
       setEditingId(newSubCategory.id);
       setEditValue(newSubCategory.title);
+      setShouldFocus(true);
     }
   };
 
@@ -261,8 +263,10 @@ export function NavMain() {
                         onCloseAutoFocus={(e) => e.preventDefault()}
                       >
                         <DropdownMenuItem
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditingId(cat.id);
+                            setShouldFocus(true);
                             setEditValue(cat.title);
                           }}
                         >
@@ -290,6 +294,7 @@ export function NavMain() {
                     onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(cat.id, e)}
                     className="h-7 text-sm"
+                    onClick={(e) => e.stopPropagation()}
                   />
                   <button
                     onClick={() => handleRename(cat.id)}
@@ -324,9 +329,11 @@ export function NavMain() {
                             onCloseAutoFocus={(e) => e.preventDefault()}
                           >
                             <DropdownMenuItem
-                              onClick={() => {
+                              onClick={(e) => {
                                 setEditingId(sub.id);
                                 setEditValue(sub.title);
+                                setShouldFocus(true);
+                                e.stopPropagation();
                               }}
                             >
                               <Pencil className="text-muted-foreground mr-2 h-4 w-4" />
@@ -352,6 +359,7 @@ export function NavMain() {
                             onChange={(e) => setEditValue(e.target.value)}
                             onKeyDown={(e) => handleKeyDown(sub.id, e)}
                             className="h-7 text-sm"
+                            onClick={(e) => e.stopPropagation()}
                           />
                           <button
                             onClick={() => handleRename(sub.id)}
