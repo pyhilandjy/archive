@@ -79,14 +79,22 @@ export function PostModal({
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <label className="flex items-center mb-4">
+        <label className="flex items-center mb-4 relative group cursor-pointer">
           <input
             type="checkbox"
             checked={isList}
             onChange={(e) => setIsList(e.target.checked)}
             className="mr-2"
           />
-          리스트로 등록
+          플레이리스트 전체 등록
+          <span
+            className="absolute left-0 top-full mt-1 w-max bg-gray-100 text-gray-700 text-xs rounded px-2 py-1 shadow-lg z-10 hidden group-hover:block"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            play-list의 아무 url을 넣어주세요.
+            <br />
+            제목은 유튜브의 제목으로 올라갑니다.
+          </span>
         </label>
         <button
           className="w-full bg-black text-white py-2"
