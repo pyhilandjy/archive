@@ -1,9 +1,10 @@
 import { fetcher } from "./fetcher";
 
 export const postContents = async (data: {
-  title: string;
+  title?: string;
   url: string;
   category_id: string;
+  is_list: boolean;
 }) => {
   const response = await fetcher<{ contents_id: string }>("/contents", {
     method: "POST",
