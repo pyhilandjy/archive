@@ -81,7 +81,8 @@ export function Card({ item, onDelete }: CardProps) {
     >
       <div className="relative aspect-video">{renderThumbnail()}</div>
       <div className="p-4 flex items-center justify-between">
-        <div>
+        <div className="min-w-0">
+          {" "}
           <h3 className="text-lg font-semibold truncate">{item.title}</h3>
         </div>
         <DropdownMenu>
