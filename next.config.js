@@ -11,7 +11,7 @@ const nextConfig = {
       // 추가: Cloudflare Tunnel 도메인
       {
         protocol: "https",
-        hostname: "definitions-graphic-surrounding-leisure.trycloudflare.com",
+        hostname: "such-replaced-robertson-programmers.trycloudflare.com",
         pathname: "/videos/**", // 썸네일, 영상 모두 포함됨
       },
     ],
